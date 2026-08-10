@@ -8,9 +8,10 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local Library = {}
-Library.Version = "1.4.0"
+Library.Version = "1.5.0"
 
 --========================================================--
 -- THEME
@@ -22,24 +23,23 @@ local Theme = {
 
     Panel = Color3.fromRGB(27, 28, 30),
     Panel2 = Color3.fromRGB(31, 32, 35),
-    Hover = Color3.fromRGB(41, 42, 46),
+    Hover = Color3.fromRGB(43, 44, 48),
 
-    Border = Color3.fromRGB(63, 64, 69),
+    Border = Color3.fromRGB(65, 66, 71),
     BorderSoft = Color3.fromRGB(48, 49, 53),
 
-    Text = Color3.fromRGB(238, 238, 240),
-    TextSoft = Color3.fromRGB(211, 211, 215),
-    TextMuted = Color3.fromRGB(150, 151, 157),
+    Text = Color3.fromRGB(242, 242, 244),
+    TextSoft = Color3.fromRGB(218, 218, 222),
+    TextMuted = Color3.fromRGB(153, 154, 160),
 
-    -- ENABLED TOGGLE
     Accent = Color3.fromRGB(48, 211, 92),
 
-    ToggleOff = Color3.fromRGB(87, 88, 96),
-    ToggleKnob = Color3.fromRGB(248, 248, 249),
+    ToggleOff = Color3.fromRGB(91, 92, 100),
+    ToggleKnob = Color3.fromRGB(250, 250, 250),
 
     Selected = Color3.fromRGB(91, 93, 100),
 
-    Search = Color3.fromRGB(10, 11, 13),
+    Search = Color3.fromRGB(9, 10, 12),
 }
 
 --========================================================--
@@ -54,7 +54,6 @@ local function Create(className, properties, parent)
     end
 
     object.Parent = parent
-
     return object
 end
 
@@ -93,13 +92,14 @@ local function Tween(object, properties, duration)
     return tween
 end
 
-local function MakeText(parent, value, size, color, font)
+local function Text(parent, value, size, color, font)
     return Create("TextLabel", {
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
 
         Text = tostring(value or ""),
         TextSize = size or 11,
+
         TextColor3 = color or Theme.TextSoft,
 
         Font = font or Enum.Font.Gotham,
@@ -111,12 +111,13 @@ local function MakeText(parent, value, size, color, font)
     }, parent)
 end
 
-local function MakeButton(parent, value)
+local function Button(parent, value)
     return Create("TextButton", {
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
 
         Text = value or "",
+
         TextSize = 11,
         TextColor3 = Theme.TextSoft,
 
@@ -141,7 +142,8 @@ function ElementMethods:SetDisabled(value)
     self.Disabled = value == true
 
     if self.Label then
-        self.Label.TextTransparency = self.Disabled and 0.5 or 0
+        self.Label.TextTransparency =
+            self.Disabled and 0.5 or 0
     end
 
     return self
@@ -165,6 +167,7 @@ function ToggleMethods:SetValue(value, fireCallback)
     self.Value = value == true
 
     if self.Value then
+
         Tween(self.Track, {
             BackgroundColor3 = Theme.Accent
         }, 0.12)
@@ -172,7 +175,9 @@ function ToggleMethods:SetValue(value, fireCallback)
         Tween(self.Knob, {
             Position = UDim2.new(1, -20, 0, 2)
         }, 0.12)
+
     else
+
         Tween(self.Track, {
             BackgroundColor3 = Theme.ToggleOff
         }, 0.12)
@@ -180,6 +185,7 @@ function ToggleMethods:SetValue(value, fireCallback)
         Tween(self.Knob, {
             Position = UDim2.new(0, 3, 0, 2)
         }, 0.12)
+
     end
 
     if fireCallback ~= false and self.Callback then
@@ -208,7 +214,9 @@ setmetatable(DropdownMethods, {
 
 function DropdownMethods:SetValue(value, fireCallback)
     self.Value = value
-    self.Button.Text = tostring(value) .. "  ﹀"
+
+    self.Button.Text =
+        tostring(value) .. "  ﹀"
 
     if fireCallback ~= false and self.Callback then
         self.Callback(value)
@@ -231,13 +239,15 @@ DropdownMethods.Get = DropdownMethods.GetValue
 local SectionMethods = {}
 
 function SectionMethods:AddLabel(value)
+
     local row = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 32),
+        Size = UDim2.new(1, 0, 0, 34),
+
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
     }, self.Container)
 
-    local label = MakeText(
+    local label = Text(
         row,
         value,
         10,
@@ -247,18 +257,25 @@ function SectionMethods:AddLabel(value)
 
     label.Position = UDim2.fromOffset(2, 0)
     label.Size = UDim2.new(1, -4, 1, 0)
+
     label.TextWrapped = true
 
     return label
 end
 
 function SectionMethods:AddDivider()
+
     return Create("Frame", {
         Size = UDim2.new(1, 0, 0, 1),
-        BackgroundColor3 = Theme.BorderSoft,
+
+        BackgroundColor3 =
+            Theme.BorderSoft,
+
         BackgroundTransparency = 0.35,
+
         BorderSizePixel = 0,
     }, self.Container)
+
 end
 
 --========================================================--
@@ -266,15 +283,18 @@ end
 --========================================================--
 
 function SectionMethods:AddToggle(id, options)
+
     options = options or {}
 
     local row = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 40),
+
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
     }, self.Container)
 
-    local label = MakeText(
+    -- Bigger / cleaner text
+    local label = Text(
         row,
         options.Text or id,
         11,
@@ -285,68 +305,68 @@ function SectionMethods:AddToggle(id, options)
     label.Position = UDim2.fromOffset(2, 0)
     label.Size = UDim2.new(1, -90, 1, 0)
 
-    local track = MakeButton(row, "")
+    local track = Button(row, "")
 
     track.Size = UDim2.fromOffset(43, 22)
-    track.Position = UDim2.new(1, -43, 0, 9)
+
+    track.Position =
+        UDim2.new(1, -43, 0, 9)
 
     track.BackgroundTransparency = 0
 
-    if options.Default == true then
-        track.BackgroundColor3 = Theme.Accent
-    else
-        track.BackgroundColor3 = Theme.ToggleOff
-    end
+    track.BackgroundColor3 =
+        options.Default
+        and Theme.Accent
+        or Theme.ToggleOff
 
     Corner(track, 11)
 
     local knob = Create("Frame", {
+
         Size = UDim2.fromOffset(18, 18),
 
-        Position = options.Default == true
+        Position =
+            options.Default
             and UDim2.new(1, -20, 0, 2)
             or UDim2.new(0, 3, 0, 2),
 
-        BackgroundColor3 = Theme.ToggleKnob,
+        BackgroundColor3 =
+            Theme.ToggleKnob,
 
         BorderSizePixel = 0,
+
     }, track)
 
     Corner(knob, 10)
 
     local toggle = setmetatable({
+
         Type = "Toggle",
+
         ID = id,
 
         Container = row,
+
         Label = label,
 
         Track = track,
+
         Knob = knob,
 
-        Value = options.Default == true,
-        Callback = options.Callback,
+        Value =
+            options.Default == true,
+
+        Callback =
+            options.Callback,
 
         Disabled = false,
+
     }, {
         __index = ToggleMethods
     })
 
-    track.MouseEnter:Connect(function()
-        if not toggle.Disabled then
-            Tween(track, {
-                BackgroundTransparency = 0.05
-            }, 0.08)
-        end
-    end)
-
-    track.MouseLeave:Connect(function()
-        Tween(track, {
-            BackgroundTransparency = 0
-        }, 0.08)
-    end)
-
     track.MouseButton1Click:Connect(function()
+
         if toggle.Disabled then
             return
         end
@@ -355,6 +375,27 @@ function SectionMethods:AddToggle(id, options)
             not toggle.Value,
             true
         )
+
+    end)
+
+    track.MouseEnter:Connect(function()
+
+        if not toggle.Disabled then
+
+            Tween(track, {
+                BackgroundTransparency = 0.05
+            }, 0.08)
+
+        end
+
+    end)
+
+    track.MouseLeave:Connect(function()
+
+        Tween(track, {
+            BackgroundTransparency = 0
+        }, 0.08)
+
     end)
 
     self.Elements[id] = toggle
@@ -367,6 +408,7 @@ end
 --========================================================--
 
 function SectionMethods:AddButton(options)
+
     if type(options) == "string" then
         options = {
             Text = options
@@ -375,56 +417,82 @@ function SectionMethods:AddButton(options)
 
     options = options or {}
 
-    local button = MakeButton(
+    local button = Button(
         self.Container,
         options.Text or "Button"
     )
 
-    button.Size = UDim2.new(1, 0, 0, 36)
+    button.Size =
+        UDim2.new(1, 0, 0, 36)
 
     button.BackgroundTransparency = 0
-    button.BackgroundColor3 = Theme.Panel2
 
-    button.TextColor3 = Theme.TextSoft
+    button.BackgroundColor3 =
+        Theme.Panel2
+
+    button.TextColor3 =
+        Theme.TextSoft
+
     button.TextSize = 11
-    button.Font = Enum.Font.Gotham
+
+    button.Font =
+        Enum.Font.Gotham
 
     Corner(button, 7)
-    Stroke(button, Theme.BorderSoft, 0.25)
+
+    Stroke(
+        button,
+        Theme.BorderSoft,
+        0.25
+    )
 
     button.MouseEnter:Connect(function()
+
         Tween(button, {
-            BackgroundColor3 = Theme.Hover
+            BackgroundColor3 =
+                Theme.Hover
         }, 0.1)
+
     end)
 
     button.MouseLeave:Connect(function()
+
         Tween(button, {
-            BackgroundColor3 = Theme.Panel2
+            BackgroundColor3 =
+                Theme.Panel2
         }, 0.1)
+
     end)
 
     button.MouseButton1Click:Connect(function()
+
         if options.Callback then
             options.Callback()
         end
+
     end)
 
     local element = setmetatable({
+
         Type = "Button",
-        ID = options.Text or "Button",
+
+        ID =
+            options.Text or "Button",
 
         Container = button,
+
         Label = button,
 
-        Callback = options.Callback,
+        Callback =
+            options.Callback,
 
-        Disabled = false,
     }, {
         __index = ElementMethods
     })
 
-    self.Elements[options.Text or "Button"] = element
+    self.Elements[
+        options.Text or "Button"
+    ] = element
 
     return element
 end
@@ -434,15 +502,21 @@ end
 --========================================================--
 
 function SectionMethods:AddDropdown(id, options)
+
     options = options or {}
 
     local row = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 40),
+
+        Size =
+            UDim2.new(1, 0, 0, 40),
+
         BackgroundTransparency = 1,
+
         BorderSizePixel = 0,
+
     }, self.Container)
 
-    local label = MakeText(
+    local label = Text(
         row,
         options.Text or id,
         10,
@@ -450,23 +524,33 @@ function SectionMethods:AddDropdown(id, options)
         Enum.Font.Gotham
     )
 
-    label.Position = UDim2.fromOffset(2, 0)
-    label.Size = UDim2.new(1, -120, 1, 0)
+    label.Position =
+        UDim2.fromOffset(2, 0)
 
-    local values = options.Values or {}
+    label.Size =
+        UDim2.new(1, -120, 1, 0)
+
+    local values =
+        options.Values or {}
 
     local current =
         options.Default
         or values[1]
         or ""
 
-    local dropdown = MakeButton(row, "")
+    local dropdown =
+        Button(row, "")
 
-    dropdown.Size = UDim2.fromOffset(112, 29)
-    dropdown.Position = UDim2.new(1, -112, 0, 5)
+    dropdown.Size =
+        UDim2.fromOffset(112, 29)
+
+    dropdown.Position =
+        UDim2.new(1, -112, 0, 5)
 
     dropdown.BackgroundTransparency = 0
-    dropdown.BackgroundColor3 = Theme.Panel2
+
+    dropdown.BackgroundColor3 =
+        Theme.Panel2
 
     dropdown.Text =
         tostring(current) .. "  ﹀"
@@ -483,24 +567,39 @@ function SectionMethods:AddDropdown(id, options)
         Enum.TextXAlignment.Right
 
     Corner(dropdown, 6)
-    Stroke(dropdown, Theme.BorderSoft, 0.3)
+
+    Stroke(
+        dropdown,
+        Theme.BorderSoft,
+        0.3
+    )
 
     local menu = Create("Frame", {
-        Position = UDim2.new(0, 0, 1, 3),
 
-        Size = UDim2.new(1, 0, 0, 0),
+        Position =
+            UDim2.new(0, 0, 1, 3),
 
-        BackgroundColor3 = Theme.Panel,
+        Size =
+            UDim2.new(1, 0, 0, 0),
+
+        BackgroundColor3 =
+            Theme.Panel,
 
         BorderSizePixel = 0,
 
         Visible = false,
 
         ZIndex = 100,
+
     }, dropdown)
 
     Corner(menu, 6)
-    Stroke(menu, Theme.Border, 0.15)
+
+    Stroke(
+        menu,
+        Theme.Border,
+        0.15
+    )
 
     Create("UIListLayout", {
         Padding = UDim.new(0, 2),
@@ -508,10 +607,9 @@ function SectionMethods:AddDropdown(id, options)
     }, menu)
 
     for index, value in ipairs(values) do
-        local option = MakeButton(
-            menu,
-            tostring(value)
-        )
+
+        local option =
+            Button(menu, tostring(value))
 
         option.LayoutOrder = index
 
@@ -522,14 +620,24 @@ function SectionMethods:AddDropdown(id, options)
             UDim2.fromOffset(3, 0)
 
         option.TextSize = 10
-        option.TextColor3 = Theme.TextSoft
-        option.TextXAlignment = Enum.TextXAlignment.Left
+
+        option.TextColor3 =
+            Theme.TextSoft
+
+        option.TextXAlignment =
+            Enum.TextXAlignment.Left
+
         option.ZIndex = 101
 
         option.MouseEnter:Connect(function()
+
             option.BackgroundTransparency = 0
-            option.BackgroundColor3 = Theme.Hover
+
+            option.BackgroundColor3 =
+                Theme.Hover
+
             Corner(option, 5)
+
         end)
 
         option.MouseLeave:Connect(function()
@@ -537,6 +645,7 @@ function SectionMethods:AddDropdown(id, options)
         end)
 
         option.MouseButton1Click:Connect(function()
+
             current = value
 
             dropdown.Text =
@@ -550,12 +659,15 @@ function SectionMethods:AddDropdown(id, options)
             if options.Callback then
                 options.Callback(value)
             end
+
         end)
+
     end
 
     local opened = false
 
     dropdown.MouseButton1Click:Connect(function()
+
         opened = not opened
 
         menu.Visible = opened
@@ -564,31 +676,48 @@ function SectionMethods:AddDropdown(id, options)
             math.min(#values, 6) * 29
 
         Tween(menu, {
-            Size = opened
-                and UDim2.new(1, 0, 0, height)
-                or UDim2.new(1, 0, 0, 0)
+            Size =
+                opened
+                and UDim2.new(
+                    1,
+                    0,
+                    0,
+                    height
+                )
+                or UDim2.new(
+                    1,
+                    0,
+                    0,
+                    0
+                )
         }, 0.12)
+
     end)
 
-    local dropdownObject = setmetatable({
+    local object = setmetatable({
+
         Type = "Dropdown",
+
         ID = id,
 
         Container = row,
+
         Label = label,
 
         Button = dropdown,
 
         Value = current,
 
-        Callback = options.Callback,
+        Callback =
+            options.Callback,
+
     }, {
         __index = DropdownMethods
     })
 
-    self.Elements[id] = dropdownObject
+    self.Elements[id] = object
 
-    return dropdownObject
+    return object
 end
 
 --========================================================--
@@ -597,25 +726,38 @@ end
 
 local TabMethods = {}
 
-function TabMethods:_CreateSection(column, title, height)
-    local section = Create("Frame", {
-        Size = UDim2.new(
-            1,
-            0,
-            0,
-            height or 355
-        ),
+function TabMethods:_CreateSection(
+    column,
+    title,
+    height
+)
 
-        BackgroundColor3 = Theme.Panel,
+    local section = Create("Frame", {
+
+        Size =
+            UDim2.new(
+                1,
+                0,
+                0,
+                height or 355
+            ),
+
+        BackgroundColor3 =
+            Theme.Panel,
 
         BorderSizePixel = 0,
+
     }, column)
 
     Corner(section, 10)
-    Stroke(section, Theme.Border, 0.28)
 
-    -- Larger section title
-    local heading = MakeText(
+    Stroke(
+        section,
+        Theme.Border,
+        0.28
+    )
+
+    local heading = Text(
         section,
         title,
         13,
@@ -627,36 +769,56 @@ function TabMethods:_CreateSection(column, title, height)
         UDim2.fromOffset(13, 0)
 
     heading.Size =
-        UDim2.new(1, -26, 0, 40)
+        UDim2.new(
+            1,
+            -26,
+            0,
+            40
+        )
 
     local body = Create("Frame", {
+
         Position =
             UDim2.fromOffset(13, 40),
 
         Size =
-            UDim2.new(1, -26, 1, -49),
+            UDim2.new(
+                1,
+                -26,
+                1,
+                -49
+            ),
 
         BackgroundTransparency = 1,
 
         BorderSizePixel = 0,
+
     }, section)
 
     Create("UIListLayout", {
-        Padding = UDim.new(0, 1),
-        SortOrder = Enum.SortOrder.LayoutOrder,
+
+        Padding =
+            UDim.new(0, 1),
+
+        SortOrder =
+            Enum.SortOrder.LayoutOrder,
+
     }, body)
 
-    local sectionObject = setmetatable({
-        Name = title,
+    local sectionObject =
+        setmetatable({
 
-        Frame = section,
+            Name = title,
 
-        Container = body,
+            Frame = section,
 
-        Elements = {},
-    }, {
-        __index = SectionMethods
-    })
+            Container = body,
+
+            Elements = {},
+
+        }, {
+            __index = SectionMethods
+        })
 
     table.insert(
         self.Sections,
@@ -666,7 +828,10 @@ function TabMethods:_CreateSection(column, title, height)
     return sectionObject
 end
 
-function TabMethods:AddLeftSection(title, height)
+function TabMethods:AddLeftSection(
+    title,
+    height
+)
     return self:_CreateSection(
         self.Left,
         title,
@@ -674,7 +839,10 @@ function TabMethods:AddLeftSection(title, height)
     )
 end
 
-function TabMethods:AddRightSection(title, height)
+function TabMethods:AddRightSection(
+    title,
+    height
+)
     return self:_CreateSection(
         self.Right,
         title,
@@ -682,7 +850,10 @@ function TabMethods:AddRightSection(title, height)
     )
 end
 
-function TabMethods:AddSection(title, height)
+function TabMethods:AddSection(
+    title,
+    height
+)
     return self:_CreateSection(
         self.Left,
         title,
@@ -696,22 +867,93 @@ end
 
 local WindowMethods = {}
 
+--========================================================--
+-- TOGGLE BUTTON
+--========================================================--
+
+function WindowMethods:SetToggleButton(value)
+
+    value = value ~= false
+
+    self.ToggleButtonEnabled = value
+
+    if self.ToggleButton then
+        self.ToggleButtonGui.Enabled = value
+    end
+
+    return self
+end
+
+function WindowMethods:ToggleButton()
+
+    self:Toggle()
+
+    return self
+end
+
+--========================================================--
+-- SHOW / HIDE
+--========================================================--
+
+function WindowMethods:Show()
+
+    self.Gui.Enabled = true
+
+    if self.ToggleButton then
+        self.ToggleButton.Visible = true
+    end
+
+end
+
+function WindowMethods:Hide()
+
+    self.Gui.Enabled = false
+
+    if self.ToggleButton then
+        self.ToggleButton.Visible = true
+    end
+
+end
+
+function WindowMethods:Toggle()
+
+    if self.Gui.Enabled then
+        self:Hide()
+    else
+        self:Show()
+    end
+
+end
+
+--========================================================--
+-- TAB
+--========================================================--
+
 function WindowMethods:AddTab(name, icon)
 
     local page = Create("Frame", {
+
         Position =
             UDim2.fromOffset(10, 59),
 
         Size =
-            UDim2.new(1, -20, 1, -68),
+            UDim2.new(
+                1,
+                -20,
+                1,
+                -68
+            ),
 
         BackgroundTransparency = 1,
 
         Visible = false,
+
     }, self.Content)
 
     local scroll = Create("ScrollingFrame", {
-        Size = UDim2.fromScale(1, 1),
+
+        Size =
+            UDim2.fromScale(1, 1),
 
         BackgroundTransparency = 1,
 
@@ -727,26 +969,46 @@ function WindowMethods:AddTab(name, icon)
 
         AutomaticCanvasSize =
             Enum.AutomaticSize.Y,
+
     }, page)
 
     local left = Create("Frame", {
+
         Position =
             UDim2.fromOffset(0, 0),
 
         Size =
-            UDim2.new(0.5, -5, 0, 600),
+            UDim2.new(
+                0.5,
+                -5,
+                0,
+                600
+            ),
 
         BackgroundTransparency = 1,
+
     }, scroll)
 
     local right = Create("Frame", {
+
         Position =
-            UDim2.new(0.5, 5, 0, 0),
+            UDim2.new(
+                0.5,
+                5,
+                0,
+                0
+            ),
 
         Size =
-            UDim2.new(0.5, -5, 0, 600),
+            UDim2.new(
+                0.5,
+                -5,
+                0,
+                600
+            ),
 
         BackgroundTransparency = 1,
+
     }, scroll)
 
     Create("UIListLayout", {
@@ -760,13 +1022,11 @@ function WindowMethods:AddTab(name, icon)
     }, right)
 
     --====================================================--
-    -- SIDEBAR TAB
+    -- NAV BUTTON
     --====================================================--
 
-    local navButton = MakeButton(
-        self.Nav,
-        ""
-    )
+    local navButton =
+        Button(self.Nav, "")
 
     navButton.Size =
         UDim2.fromOffset(141, 34)
@@ -774,17 +1034,16 @@ function WindowMethods:AddTab(name, icon)
     navButton.LayoutOrder =
         #self.TabOrder + 1
 
-    navButton.BackgroundTransparency = 1
-
     Corner(navButton, 6)
 
-    local iconLabel = MakeText(
-        navButton,
-        icon or "•",
-        15,
-        Theme.TextMuted,
-        Enum.Font.Gotham
-    )
+    local iconLabel =
+        Text(
+            navButton,
+            icon or "•",
+            15,
+            Theme.TextMuted,
+            Enum.Font.Gotham
+        )
 
     iconLabel.Position =
         UDim2.fromOffset(8, 0)
@@ -795,13 +1054,14 @@ function WindowMethods:AddTab(name, icon)
     iconLabel.TextXAlignment =
         Enum.TextXAlignment.Center
 
-    local nameLabel = MakeText(
-        navButton,
-        name,
-        11,
-        Theme.TextSoft,
-        Enum.Font.GothamMedium
-    )
+    local nameLabel =
+        Text(
+            navButton,
+            name,
+            11,
+            Theme.TextSoft,
+            Enum.Font.GothamMedium
+        )
 
     nameLabel.Position =
         UDim2.fromOffset(39, 0)
@@ -809,13 +1069,14 @@ function WindowMethods:AddTab(name, icon)
     nameLabel.Size =
         UDim2.fromOffset(82, 34)
 
-    local arrow = MakeText(
-        navButton,
-        "›",
-        18,
-        Theme.TextMuted,
-        Enum.Font.Gotham
-    )
+    local arrow =
+        Text(
+            navButton,
+            "›",
+            18,
+            Theme.TextMuted,
+            Enum.Font.Gotham
+        )
 
     arrow.Position =
         UDim2.fromOffset(122, 0)
@@ -826,28 +1087,31 @@ function WindowMethods:AddTab(name, icon)
     arrow.TextXAlignment =
         Enum.TextXAlignment.Center
 
-    local tab = setmetatable({
-        Name = name,
-        Icon = icon,
+    local tab =
+        setmetatable({
 
-        Page = page,
-        Scroll = scroll,
+            Name = name,
+            Icon = icon,
 
-        Left = left,
-        Right = right,
+            Page = page,
+            Scroll = scroll,
 
-        NavButton = navButton,
+            Left = left,
+            Right = right,
 
-        IconLabel = iconLabel,
-        NameLabel = nameLabel,
-        Arrow = arrow,
+            NavButton = navButton,
 
-        Sections = {},
+            IconLabel = iconLabel,
+            NameLabel = nameLabel,
+            Arrow = arrow,
 
-        Window = self,
-    }, {
-        __index = TabMethods
-    })
+            Sections = {},
+
+            Window = self,
+
+        }, {
+            __index = TabMethods
+        })
 
     self.Tabs[name] = tab
 
@@ -855,10 +1119,6 @@ function WindowMethods:AddTab(name, icon)
         self.TabOrder,
         tab
     )
-
-    --====================================================--
-    -- HOVER
-    --====================================================--
 
     navButton.MouseEnter:Connect(function()
 
@@ -878,16 +1138,12 @@ function WindowMethods:AddTab(name, icon)
         if self.ActiveTab ~= tab then
 
             Tween(navButton, {
-                BackgroundTransparency = 1,
+                BackgroundTransparency = 1
             }, 0.1)
 
         end
 
     end)
-
-    --====================================================--
-    -- REAL TAB SWITCH
-    --====================================================--
 
     navButton.MouseButton1Click:Connect(function()
         self:SelectTab(name)
@@ -952,17 +1208,15 @@ function WindowMethods:SelectTab(name)
 end
 
 --========================================================--
--- NOTIFICATIONS
+-- NOTIFY
 --========================================================--
 
 function WindowMethods:Notify(options)
 
     options = options or {}
 
-    local duration =
-        options.Duration or 4
-
     local notification = Create("Frame", {
+
         AnchorPoint =
             Vector2.new(1, 1),
 
@@ -986,6 +1240,7 @@ function WindowMethods:Notify(options)
         BorderSizePixel = 0,
 
         ZIndex = 1000,
+
     }, self.Gui)
 
     Corner(notification, 8)
@@ -996,83 +1251,85 @@ function WindowMethods:Notify(options)
         0.15
     )
 
-    local title = MakeText(
-        notification,
-        options.Title or "Pulse Hub",
-        12,
-        Theme.Text,
-        Enum.Font.GothamMedium
-    )
+    local title =
+        Text(
+            notification,
+            options.Title or "Pulse Hub",
+            12,
+            Theme.Text,
+            Enum.Font.GothamMedium
+        )
 
     title.Position =
         UDim2.fromOffset(12, 6)
 
     title.Size =
-        UDim2.new(1, -24, 0, 22)
+        UDim2.new(
+            1,
+            -24,
+            0,
+            22
+        )
 
-    local content = MakeText(
-        notification,
-        options.Content or "",
-        10,
-        Theme.TextSoft,
-        Enum.Font.Gotham
-    )
+    local content =
+        Text(
+            notification,
+            options.Content or "",
+            10,
+            Theme.TextSoft,
+            Enum.Font.Gotham
+        )
 
     content.Position =
         UDim2.fromOffset(12, 30)
 
     content.Size =
-        UDim2.new(1, -24, 0, 36)
+        UDim2.new(
+            1,
+            -24,
+            0,
+            36
+        )
 
     content.TextWrapped = true
 
-    task.delay(duration, function()
-
-        if notification.Parent then
-
-            Tween(
-                notification,
-                {
-                    Position =
-                        UDim2.new(
-                            1,
-                            320,
-                            1,
-                            -16
-                        )
-                },
-                0.2
-            )
-
-            task.wait(0.22)
+    task.delay(
+        options.Duration or 4,
+        function()
 
             if notification.Parent then
-                notification:Destroy()
+
+                Tween(
+                    notification,
+                    {
+                        Position =
+                            UDim2.new(
+                                1,
+                                320,
+                                1,
+                                -16
+                            )
+                    },
+                    0.2
+                )
+
+                task.wait(0.22)
+
+                if notification.Parent then
+                    notification:Destroy()
+                end
+
             end
 
         end
-
-    end)
+    )
 
     return notification
 end
 
 --========================================================--
--- WINDOW VISIBILITY
+-- DESTROY
 --========================================================--
-
-function WindowMethods:Show()
-    self.Gui.Enabled = true
-end
-
-function WindowMethods:Hide()
-    self.Gui.Enabled = false
-end
-
-function WindowMethods:Toggle()
-    self.Gui.Enabled =
-        not self.Gui.Enabled
-end
 
 function WindowMethods:Destroy()
 
@@ -1080,7 +1337,12 @@ function WindowMethods:Destroy()
         self.Gui:Destroy()
     end
 
+    if self.ToggleButtonGui then
+        self.ToggleButtonGui:Destroy()
+    end
+
     self.Destroyed = true
+
 end
 
 --========================================================--
@@ -1091,45 +1353,39 @@ function Library:CreateWindow(options)
 
     options = options or {}
 
-    local playerGui =
-        LocalPlayer:WaitForChild(
-            "PlayerGui"
-        )
-
     if self.Window then
-
         pcall(function()
             self.Window:Destroy()
         end)
-
     end
 
     --====================================================--
-    -- SCREEN GUI
+    -- MAIN SCREEN GUI
     --====================================================--
 
     local gui = Create("ScreenGui", {
+
         Name =
-            options.Name
-            or "XusGui",
+            options.Name or "XusGui",
 
         ResetOnSpawn = false,
 
         IgnoreGuiInset = true,
 
         DisplayOrder =
-            options.DisplayOrder
-            or 100,
+            options.DisplayOrder or 100,
 
         ZIndexBehavior =
             Enum.ZIndexBehavior.Sibling,
-    }, playerGui)
+
+    }, PlayerGui)
 
     --====================================================--
-    -- WINDOW
+    -- MAIN WINDOW
     --====================================================--
 
     local main = Create("Frame", {
+
         AnchorPoint =
             Vector2.new(0.5, 0.5),
 
@@ -1151,6 +1407,7 @@ function Library:CreateWindow(options)
         BorderSizePixel = 0,
 
         ClipsDescendants = true,
+
     }, gui)
 
     Corner(main, 10)
@@ -1166,6 +1423,7 @@ function Library:CreateWindow(options)
     --====================================================--
 
     local sidebar = Create("Frame", {
+
         Size =
             UDim2.fromOffset(
                 153,
@@ -1176,9 +1434,11 @@ function Library:CreateWindow(options)
             Theme.Sidebar,
 
         BorderSizePixel = 0,
+
     }, main)
 
     Create("Frame", {
+
         Position =
             UDim2.new(1, -1, 0, 0),
 
@@ -1189,6 +1449,7 @@ function Library:CreateWindow(options)
             Theme.BorderSoft,
 
         BorderSizePixel = 0,
+
     }, sidebar)
 
     --====================================================--
@@ -1196,6 +1457,7 @@ function Library:CreateWindow(options)
     --====================================================--
 
     local logo = Create("Frame", {
+
         Position =
             UDim2.fromOffset(10, 8),
 
@@ -1210,6 +1472,7 @@ function Library:CreateWindow(options)
             ),
 
         BorderSizePixel = 0,
+
     }, sidebar)
 
     Corner(logo, 8)
@@ -1224,17 +1487,18 @@ function Library:CreateWindow(options)
         0.2
     )
 
-    local logoText = MakeText(
-        logo,
-        options.LogoText or "≈",
-        20,
-        Color3.fromRGB(
-            70,
-            145,
-            240
-        ),
-        Enum.Font.GothamBold
-    )
+    local logoText =
+        Text(
+            logo,
+            options.LogoText or "≈",
+            20,
+            Color3.fromRGB(
+                70,
+                145,
+                240
+            ),
+            Enum.Font.GothamBold
+        )
 
     logoText.Size =
         UDim2.fromScale(1, 1)
@@ -1246,41 +1510,43 @@ function Library:CreateWindow(options)
     -- TITLE
     --====================================================--
 
-    local title = MakeText(
-        sidebar,
-        options.Title or "Pulse Hub",
-        13,
-        Color3.fromRGB(
-            70,
-            145,
-            240
-        ),
-        Enum.Font.GothamMedium
-    )
+    local title =
+        Text(
+            sidebar,
+            options.Title or "Pulse Hub",
+            14,
+            Color3.fromRGB(
+                70,
+                145,
+                240
+            ),
+            Enum.Font.GothamMedium
+        )
 
     title.Position =
-        UDim2.fromOffset(52, 5)
+        UDim2.fromOffset(52, 4)
 
     title.Size =
         UDim2.fromOffset(
-            92,
-            19
+            94,
+            21
         )
 
-    local footer = MakeText(
-        sidebar,
-        options.Footer or "MM2 - v0.4.2",
-        8,
-        Theme.TextMuted,
-        Enum.Font.Gotham
-    )
+    local footer =
+        Text(
+            sidebar,
+            options.Footer or "MM2 - v0.4.2",
+            8,
+            Theme.TextMuted,
+            Enum.Font.Gotham
+        )
 
     footer.Position =
         UDim2.fromOffset(52, 23)
 
     footer.Size =
         UDim2.fromOffset(
-            92,
+            94,
             12
         )
 
@@ -1289,6 +1555,7 @@ function Library:CreateWindow(options)
     --====================================================--
 
     local nav = Create("Frame", {
+
         Position =
             UDim2.fromOffset(6, 62),
 
@@ -1299,14 +1566,17 @@ function Library:CreateWindow(options)
             ),
 
         BackgroundTransparency = 1,
+
     }, sidebar)
 
     Create("UIListLayout", {
+
         Padding =
             UDim.new(0, 2),
 
         SortOrder =
             Enum.SortOrder.LayoutOrder,
+
     }, nav)
 
     --====================================================--
@@ -1314,6 +1584,7 @@ function Library:CreateWindow(options)
     --====================================================--
 
     local content = Create("Frame", {
+
         Position =
             UDim2.fromOffset(
                 153,
@@ -1329,16 +1600,18 @@ function Library:CreateWindow(options)
             ),
 
         BackgroundTransparency = 1,
+
     }, main)
 
     --====================================================--
-    -- TOP BUTTONS
+    -- GENERAL BUTTON
     --====================================================--
 
-    local general = MakeButton(
-        content,
-        "●  General"
-    )
+    local general =
+        Button(
+            content,
+            "●  General"
+        )
 
     general.Position =
         UDim2.fromOffset(
@@ -1353,6 +1626,7 @@ function Library:CreateWindow(options)
         )
 
     general.BackgroundTransparency = 0
+
     general.BackgroundColor3 =
         Theme.Selected
 
@@ -1360,38 +1634,45 @@ function Library:CreateWindow(options)
         Theme.Text
 
     general.TextSize = 11
+
     general.Font =
         Enum.Font.GothamMedium
 
     Corner(general, 7)
 
-    local uisButton = MakeButton(
-        content,
-        "UIS"
-    )
+    --====================================================--
+    -- UIS
+    --====================================================--
 
-    uisButton.Position =
+    local uis =
+        Button(
+            content,
+            "UIS"
+        )
+
+    uis.Position =
         UDim2.fromOffset(
             106,
             12
         )
 
-    uisButton.Size =
+    uis.Size =
         UDim2.fromOffset(
             44,
             32
         )
 
-    uisButton.TextColor3 =
+    uis.TextColor3 =
         Theme.TextMuted
 
-    uisButton.TextSize = 11
+    uis.TextSize = 11
 
     --====================================================--
     -- SEARCH
     --====================================================--
 
     local search = Create("Frame", {
+
         Position =
             UDim2.new(
                 1,
@@ -1410,17 +1691,19 @@ function Library:CreateWindow(options)
             Theme.Search,
 
         BorderSizePixel = 0,
+
     }, content)
 
     Corner(search, 7)
 
-    local searchIcon = MakeText(
-        search,
-        "⌕",
-        18,
-        Theme.TextMuted,
-        Enum.Font.Gotham
-    )
+    local searchIcon =
+        Text(
+            search,
+            "⌕",
+            18,
+            Theme.TextMuted,
+            Enum.Font.Gotham
+        )
 
     searchIcon.Position =
         UDim2.fromOffset(8, 0)
@@ -1435,6 +1718,7 @@ function Library:CreateWindow(options)
         Enum.TextXAlignment.Center
 
     local searchBox = Create("TextBox", {
+
         Position =
             UDim2.fromOffset(
                 34,
@@ -1468,16 +1752,18 @@ function Library:CreateWindow(options)
             Enum.Font.Gotham,
 
         ClearTextOnFocus = false,
+
     }, search)
 
     --====================================================--
     -- CLOSE
     --====================================================--
 
-    local close = MakeButton(
-        content,
-        "×"
-    )
+    local close =
+        Button(
+            content,
+            "×"
+        )
 
     close.Position =
         UDim2.new(
@@ -1504,6 +1790,7 @@ function Library:CreateWindow(options)
     close.MouseEnter:Connect(function()
 
         close.BackgroundTransparency = 0
+
         close.BackgroundColor3 =
             Theme.Hover
 
@@ -1523,27 +1810,32 @@ function Library:CreateWindow(options)
     -- WINDOW OBJECT
     --====================================================--
 
-    local window = setmetatable({
+    local window =
+        setmetatable({
 
-        Gui = gui,
-        Main = main,
-        Sidebar = sidebar,
+            Gui = gui,
 
-        Nav = nav,
-        Content = content,
+            Main = main,
 
-        SearchBox = searchBox,
+            Sidebar = sidebar,
 
-        Tabs = {},
-        TabOrder = {},
+            Nav = nav,
 
-        ActiveTab = nil,
+            Content = content,
 
-        Destroyed = false,
+            SearchBox = searchBox,
 
-    }, {
-        __index = WindowMethods
-    })
+            Tabs = {},
+
+            TabOrder = {},
+
+            ActiveTab = nil,
+
+            Destroyed = false,
+
+        }, {
+            __index = WindowMethods
+        })
 
     Library.Window = window
 
@@ -1566,7 +1858,8 @@ function Library:CreateWindow(options)
 
             if query == "" then
 
-                tab.NavButton.Visible = true
+                tab.NavButton.Visible =
+                    true
 
             else
 
@@ -1585,7 +1878,7 @@ function Library:CreateWindow(options)
     end)
 
     --====================================================--
-    -- DRAGGING
+    -- DRAG WINDOW
     --====================================================--
 
     local dragging = false
@@ -1627,11 +1920,17 @@ function Library:CreateWindow(options)
 
                 main.Position =
                     UDim2.new(
+
                         startPosition.X.Scale,
-                        startPosition.X.Offset + delta.X,
+
+                        startPosition.X.Offset
+                            + delta.X,
 
                         startPosition.Y.Scale,
-                        startPosition.Y.Offset + delta.Y
+
+                        startPosition.Y.Offset
+                            + delta.Y
+
                     )
 
             end
@@ -1675,11 +1974,325 @@ function Library:CreateWindow(options)
         end
     )
 
+    --====================================================--
+    -- FLOATING PULSE HUB TOGGLE
+    --====================================================--
+    -- This is deliberately a SEPARATE ScreenGui so
+    -- hiding the main interface does not hide the button.
+    --====================================================--
+
+    local toggleGui = Create("ScreenGui", {
+
+        Name =
+            "XusGui_Toggle",
+
+        ResetOnSpawn = false,
+
+        IgnoreGuiInset = true,
+
+        DisplayOrder = 101,
+
+        ZIndexBehavior =
+            Enum.ZIndexBehavior.Sibling,
+
+    }, PlayerGui)
+
+    local toggleButton = Create("TextButton", {
+
+        AnchorPoint =
+            Vector2.new(0.5, 0),
+
+        Position =
+            options.ToggleButtonPosition
+            or UDim2.new(
+                0.5,
+                0,
+                0,
+                8
+            ),
+
+        Size =
+            UDim2.fromOffset(
+                138,
+                38
+            ),
+
+        BackgroundColor3 =
+            Color3.fromRGB(
+                12,
+                13,
+                15
+            ),
+
+        BackgroundTransparency = 0,
+
+        BorderSizePixel = 0,
+
+        Text = "",
+
+        AutoButtonColor = false,
+
+        ZIndex = 500,
+
+    }, toggleGui)
+
+    Corner(toggleButton, 19)
+
+    Stroke(
+        toggleButton,
+        Color3.fromRGB(
+            80,
+            81,
+            87
+        ),
+        0.15
+    )
+
+    --====================================================--
+    -- TOGGLE BUTTON ICON
+    --====================================================--
+
+    local toggleIcon = Create("Frame", {
+
+        Position =
+            UDim2.fromOffset(
+                7,
+                6
+            ),
+
+        Size =
+            UDim2.fromOffset(
+                26,
+                26
+            ),
+
+        BackgroundColor3 =
+            Color3.fromRGB(
+                20,
+                62,
+                103
+            ),
+
+        BorderSizePixel = 0,
+
+        ZIndex = 501,
+
+    }, toggleButton)
+
+    Corner(toggleIcon, 13)
+
+    local pulseIcon =
+        Text(
+            toggleIcon,
+            options.LogoText or "≈",
+            17,
+            Color3.fromRGB(
+                76,
+                159,
+                245
+            ),
+            Enum.Font.GothamBold
+        )
+
+    pulseIcon.Size =
+        UDim2.fromScale(
+            1,
+            1
+        )
+
+    pulseIcon.TextXAlignment =
+        Enum.TextXAlignment.Center
+
+    pulseIcon.ZIndex = 502
+
+    --====================================================--
+    -- TOGGLE BUTTON TEXT
+    --====================================================--
+
+    local toggleText =
+        Text(
+            toggleButton,
+            options.Title or "Pulse Hub",
+            13,
+            Theme.Text,
+            Enum.Font.GothamMedium
+        )
+
+    toggleText.Position =
+        UDim2.fromOffset(
+            41,
+            0
+        )
+
+    toggleText.Size =
+        UDim2.fromOffset(
+            90,
+            38
+        )
+
+    toggleText.ZIndex = 501
+
+    --====================================================--
+    -- TOGGLE BUTTON HOVER
+    --====================================================--
+
+    toggleButton.MouseEnter:Connect(function()
+
+        Tween(
+            toggleButton,
+            {
+                BackgroundColor3 =
+                    Color3.fromRGB(
+                        22,
+                        23,
+                        26
+                    )
+            },
+            0.12
+        )
+
+        Tween(
+            toggleIcon,
+            {
+                BackgroundColor3 =
+                    Color3.fromRGB(
+                        24,
+                        77,
+                        127
+                    )
+            },
+            0.12
+        )
+
+    end)
+
+    toggleButton.MouseLeave:Connect(function()
+
+        Tween(
+            toggleButton,
+            {
+                BackgroundColor3 =
+                    Color3.fromRGB(
+                        12,
+                        13,
+                        15
+                    )
+            },
+            0.12
+        )
+
+        Tween(
+            toggleIcon,
+            {
+                BackgroundColor3 =
+                    Color3.fromRGB(
+                        20,
+                        62,
+                        103
+                    )
+            },
+            0.12
+        )
+
+    end)
+
+    --====================================================--
+    -- TOGGLE BUTTON CLICK
+    --====================================================--
+
+    toggleButton.MouseButton1Click:Connect(function()
+
+        window:Toggle()
+
+    end)
+
+    window.ToggleButton =
+        toggleButton
+
+    window.ToggleButtonGui =
+        toggleGui
+
+    window.ToggleButtonEnabled =
+        true
+
+    --====================================================--
+    -- DRAG TOGGLE BUTTON
+    --====================================================--
+
+    local toggleDragging = false
+    local toggleDragStart
+    local toggleStartPosition
+
+    toggleButton.InputBegan:Connect(
+        function(input)
+
+            if input.UserInputType ==
+                Enum.UserInputType.MouseButton1
+            then
+
+                toggleDragging = true
+
+                toggleDragStart =
+                    input.Position
+
+                toggleStartPosition =
+                    toggleButton.Position
+
+            end
+
+        end
+    )
+
+    UserInputService.InputChanged:Connect(
+        function(input)
+
+            if not toggleDragging then
+                return
+            end
+
+            if input.UserInputType ==
+                Enum.UserInputType.MouseMovement
+            then
+
+                local delta =
+                    input.Position
+                    - toggleDragStart
+
+                toggleButton.Position =
+                    UDim2.new(
+
+                        toggleStartPosition.X.Scale,
+
+                        toggleStartPosition.X.Offset
+                            + delta.X,
+
+                        toggleStartPosition.Y.Scale,
+
+                        toggleStartPosition.Y.Offset
+                            + delta.Y
+
+                    )
+
+            end
+
+        end
+    )
+
+    UserInputService.InputEnded:Connect(
+        function(input)
+
+            if input.UserInputType ==
+                Enum.UserInputType.MouseButton1
+            then
+
+                toggleDragging = false
+
+            end
+
+        end
+    )
+
     return window
 end
-
---========================================================--
--- RETURN
---========================================================--
 
 return Library
